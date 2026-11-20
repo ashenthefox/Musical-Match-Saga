@@ -12,9 +12,6 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [24, 26]
 
     steps:
       - name: Checkout
@@ -23,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
@@ -42,11 +39,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Verify test matrix result
+      - name: Verify test result
         env:
           TEST_RESULT: ${{ needs.test.result }}
         run: |
           if [ "$TEST_RESULT" != "success" ]; then
-            echo "::error::The test matrix did not succeed (result: $TEST_RESULT)."
+            echo "::error::The test job did not succeed (result: $TEST_RESULT)."
             exit 1
           fi

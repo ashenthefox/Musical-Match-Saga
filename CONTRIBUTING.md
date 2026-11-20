@@ -16,18 +16,20 @@ Thanks for wanting to help with Musical Match Saga! 🎵
 
 ## Setting up
 
-The game is plain HTML, CSS and JavaScript, so there's no build step. You'll need [Node.js](https://nodejs.org/) 24.x or 26.x to run the tests and the linter.
+The game is plain HTML, CSS and JavaScript, so there's no build step. You'll need [Node.js](https://nodejs.org/) 24.x or 26.x to run the tests and the linter. CI uses Node.js 24, as specified in `.nvmrc`.
 
-The required GitHub check is **Tests pass**. It succeeds only when tests pass on every Node.js version in the `test.yml` matrix, so the Node.js versions can change without changing the required check.
+The required GitHub check is **Tests pass**. It succeeds only when the test job passes.
 
 1. Fork this repository, then clone your fork:
    ```bash
    git clone https://github.com/<your-username>/Musical-Match-Saga.git
    cd Musical-Match-Saga
    ```
-2. Install the dependencies:
+2. Select Node.js 24 with [nvm](https://github.com/nvm-sh/nvm) and install the dependencies:
    ```bash
-   npm install
+   nvm install
+   nvm use
+   npm ci
    ```
    Please use npm rather than yarn or pnpm, so `package-lock.json` stays the only lockfile.
 3. Start a local web server:
