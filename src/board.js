@@ -127,6 +127,19 @@ export function generateGameBoard(gameBoard, BOARD_SIZE, SYMBOLS, getSafeSymbol,
     hasMove = hasPossibleMoves(gameBoard, BOARD_SIZE);
     attempts++;
   } while (!hasMove && attempts < 20);
+  // A deterministic, match-free fallback for supported match-3 boards.
+  // The alternating rows contain A B A / B A B, so swapping the
+  // middle tiles creates a horizontal match without relying on randomness.
+  if (!hasMove && BOARD_SIZE >= 3 && SYMBOLS.length >= 2) {
+    getBoardCells(gameBoard).forEach((cell, idx) => {
+      const row = Math.floor(idx / BOARD_SIZE);
+      const col = idx % BOARD_SIZE;
+      const symbol = SYMBOLS[(row + col) % 2];
+      cell.textContent = symbol;
+      updateCellClass(cell);
+      cell.setAttribute('aria-label', `Game tile: ${symbol}, row ${row + 1}, column ${col + 1}`);
+    });
+  }
   // Always re-attach listeners after board generation
   if (typeof wireUpCellEvents === 'function') {
     wireUpCellEvents();
@@ -185,7 +198,7 @@ export function reshuffleBoard(gameBoard, BOARD_SIZE, SYMBOLS, getSafeSymbol, ha
     attempts++;
     if (attempts > 20) {
       generateGameBoard(gameBoard, BOARD_SIZE, SYMBOLS, getSafeSymbol, hasPossibleMoves, wireUpCellEvents);
-      break;
+      return;
     }
   } while (!hasPossibleMoves(gameBoard, BOARD_SIZE));
   if (typeof wireUpCellEvents === 'function') {
