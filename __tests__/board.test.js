@@ -186,3 +186,32 @@ describe('reshuffleBoard', () => {
     }).not.toThrow();
   });
 });
+
+describe('dead-board recovery', () => {
+  test.each(['generate', 'reshuffle'])('%s recovers even when random attempts produce dead boards', mode => {
+    const gameBoard = document.createElement('div');
+    const deadSymbol = (grid, row, col, symbols) => symbols[(row + col) % symbols.length];
+    const random = jest.spyOn(Math, 'random').mockReturnValue(0.999999);
+    const wire = jest.fn();
+    try {
+      if (mode === 'reshuffle') {
+        for (let row = 0; row < BOARD_SIZE; row++) {
+          for (let col = 0; col < BOARD_SIZE; col++) {
+            const cell = document.createElement('div');
+            cell.textContent = deadSymbol([], row, col, SYMBOLS);
+            gameBoard.appendChild(cell);
+          }
+        }
+        expect(hasPossibleMoves(gameBoard, BOARD_SIZE)).toBe(false);
+        reshuffleBoard(gameBoard, BOARD_SIZE, SYMBOLS, deadSymbol, hasPossibleMoves, wire);
+      } else {
+        generateGameBoard(gameBoard, BOARD_SIZE, SYMBOLS, deadSymbol, hasPossibleMoves, wire);
+      }
+      expect(findMatches(gameBoard, BOARD_SIZE)).toHaveLength(0);
+      expect(hasPossibleMoves(gameBoard, BOARD_SIZE)).toBe(true);
+      expect(gameBoard.children).toHaveLength(BOARD_SIZE * BOARD_SIZE);
+    } finally {
+      random.mockRestore();
+    }
+  });
+});
